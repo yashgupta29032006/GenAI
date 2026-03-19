@@ -1,138 +1,96 @@
-# AI Summarizer Agent (ADK + FastAPI + Cloud Run)
+# AI Summarizer Agent (Production-Ready)
 
-A production-ready AI agent built with Google ADK (Agent Development Kit), Gemini, and FastAPI, designed for simple and reliable text summarization.
+A high-performance, production-ready AI agent built with **Google ADK (Agent Development Kit)**, **Gemini**, and **FastAPI**. Designed for text summarization with robust error handling, structured logging, and Cloud Run compatibility.
 
-## Features
+## 🚀 Features
 - **ADK-powered Agent**: Uses Google ADK for structured AI interactions.
-- **FastAPI**: Modern, fast (high-performance) web framework.
-- **Gemini Integration**: Optimized for Google's Gemini models.
-- **Cloud Run Ready**: Fully dockerized and compatible with Google Cloud Run.
-- **Modular Design**: Clean separation of configuration, agent logic, and API.
+- **FastAPI**: Modern, fast web framework with Pydantic validation.
+- **Structured Logging**: JSON-formatted logs for production monitoring.
+- **Timeouts**: AI calls are protected by timeouts to prevent hanging.
+- **Readiness Checks**: Robust `/health` endpoint for Cloud Run.
+- **Dockerized**: Optimized for Google Cloud Run (Port 8080).
 
-## Project Structure
+## 📂 Project Structure
 ```text
 summarizer-agent/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py        # API implementation
-│   ├── agent.py       # AI Agent logic using ADK
-│   └── config.py      # Configuration and logging
+│   ├── main.py        # FastAPI Implementation & Routes
+│   ├── agent.py       # AI Agent logic using Google ADK
+│   └── config.py      # Configuration, Logging & Timeouts
 ├── tests/
-│   └── test_api.py    # Request-based test script
-├── Dockerfile         # Containerization script
+│   └── test_api.py    # Automated test script
+├── Dockerfile         # Optimized container script
 ├── requirements.txt   # Dependencies
 ├── .env.example       # Environment template
 └── README.md          # Documentation
 ```
 
-## Setup Instructions
+## 🛠️ Setup Instructions
 
 ### 1. Prerequisites
 - Python 3.10+
-- Docker (optional, for local container testing)
 - Google Cloud CLI (for deployment)
 - Gemini API Key ([Get it here](https://aistudio.google.com/))
 
 ### 2. Local Installation
 ```bash
-# Clone or move into the project directory
 cd summarizer-agent
-
-# Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Setup environment variables
 cp .env.example .env
-# Edit .env and paste your GEMINI_API_KEY
+# Set GEMINI_API_KEY in .env
 ```
 
 ### 3. Running Locally
 ```bash
-# Start the server
-python -m app.main
+uvicorn app.main:app --host 0.0.0.0 --port 8080
 ```
-The server will start on `http://localhost:8080`.
+Server starts at `http://localhost:8080`.
 
-## Testing Steps
+## 🧪 Testing
 
-### 1. Automated Test Script
-While the server is running, execute:
+### Automated Test
 ```bash
 python tests/test_api.py
 ```
 
-### 2. Manual Test with curl
+### Sample Manual Request (curl)
 ```bash
 curl -X POST http://localhost:8080/summarize \
      -H "Content-Type: application/json" \
-     -d '{"text": "AI is changing the world by automating tasks and improving efficiency."}'
+     -d '{"text": "Artificial Intelligence is transforming industries by automating tasks and providing deep insights from massive datasets."}'
 ```
 
----
+### Expected JSON Response
+```json
+{
+  "summary": "AI is revolutionizing industries through automation and data analysis.",
+  "status": "success",
+  "processed_time_ms": 1245.5
+}
+```
 
-## Deployment to Google Cloud Run
+## ☁️ Deployment to Google Cloud Run
 
-### 1. Set Google Cloud Project
+### 1. Build and Push to Artifact Registry
 ```bash
-gcloud config set project [YOUR_PROJECT_ID]
+gcloud artifacts repositories create agent-repo --repository-format=docker --location=us-central1
+gcloud builds submit --tag us-central1-docker.pkg.dev/[PROJECT_ID]/agent-repo/summarizer:latest .
 ```
 
-### 2. Build and Push Container (Artifact Registry)
-```bash
-# Create a repository (if not exists)
-gcloud artifacts repositories create summarizer-repo --repository-format=docker --location=us-central1
-
-# Build and Push
-gcloud builds submit --tag us-central1-docker.pkg.dev/[PROJECT_ID]/summarizer-repo/agent:latest .
-```
-
-### 3. Deploy to Cloud Run
+### 2. Deploy to Cloud Run
 ```bash
 gcloud run deploy summarizer-agent \
-  --image us-central1-docker.pkg.dev/[PROJECT_ID]/summarizer-repo/agent:latest \
+  --image us-central1-docker.pkg.dev/[PROJECT_ID]/agent-repo/summarizer:latest \
   --set-env-vars GEMINI_API_KEY=[YOUR_API_KEY] \
   --region us-central1 \
   --allow-unauthenticated \
   --port 8080
 ```
 
+**Final Service URL:** `https://summarizer-agent-[hash]-uc.a.run.app`
+
 ---
-
-## API Specification
-
-### POST `/summarize`
-**Input:**
-```json
-{
-  "text": "Your long text here..."
-}
-```
-
-**Output:**
-```json
-{
-  "summary": "Condensed version of text...",
-  "status": "success"
-}
-```
-
-## Example Responses
-
-### Success Case
-```json
-{
-  "summary": "AI is revolutionizing industries by increasing productivity and enhancing human capabilities.",
-  "status": "success"
-}
-```
-
-### Error Case (400 Bad Request)
-```json
-{
-  "detail": "Input text is required."
-}
-```
+*Developed with ❤️ using ADK and FastAPI.*

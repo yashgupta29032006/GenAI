@@ -2,40 +2,47 @@ import requests
 import json
 import sys
 
-def test_summarize(url, text):
-    payload = {"text": text}
+def test_endpoint(url, path, method="GET", payload=None):
+    full_url = f"{url}{path}"
     headers = {"Content-Type": "application/json"}
     
-    print(f"Testing URL: {url}/summarize")
-    print(f"Input Text: {text[:50]}...")
+    print(f"\n--- Testing {method} {full_url} ---")
+    if payload:
+        print(f"Payload: {json.dumps(payload)[:100]}...")
     
     try:
-        response = requests.post(f"{url}/summarize", data=json.dumps(payload), headers=headers)
-        response.raise_for_status()
+        if method == "POST":
+            response = requests.post(full_url, data=json.dumps(payload), headers=headers)
+        else:
+            response = requests.get(full_url, headers=headers)
+        
+        print(f"Status Code: {response.status_code}")
         result = response.json()
-        print("\n--- API RESPONSE ---")
+        print("Response Body:")
         print(json.dumps(result, indent=2))
-        print("--------------------")
-        return result
-    except requests.exceptions.RequestException as e:
+        return response.status_code, result
+    except Exception as e:
         print(f"Error during request: {e}")
-        if response is not None:
-             print(f"Response: {response.text}")
-        sys.exit(1)
+        return 500, str(e)
 
 if __name__ == "__main__":
     # Change this to your live URL after deployment
     BASE_URL = "http://localhost:8080"
     
-    sample_text = """
-    Artificial Intelligence (AI) is transforming the world at an unprecedented pace. 
-    From healthcare to finance, AI systems are being integrated into daily operations to improve efficiency and decision-making. 
-    However, with these advancements come ethical considerations such as data privacy and bias in algorithms. 
-    It is crucial for developers and policymakers to work together to ensure AI is used responsibly and for the benefit of all humanity.
-    """
+    print("Starting AI Summarizer Agent Production Tests...")
     
-    test_summarize(BASE_URL, sample_text)
+    # 1. Health Check
+    test_endpoint(BASE_URL, "/health")
     
-    # Test Empty Input
-    print("\nTesting Empty Input...")
-    test_summarize(BASE_URL, "")
+    # 2. Success Case
+    sample_text = "ADK simplifies agent development by providing a code-first Python framework for building and deploying AI agents."
+    test_endpoint(BASE_URL, "/summarize", "POST", {"text": sample_text})
+    
+    # 3. Validation Case (Empty Text)
+    test_endpoint(BASE_URL, "/summarize", "POST", {"text": ""})
+    
+    # 4. Large Text Case
+    long_text = "AI " * 500  # A bit long, but within limits
+    test_endpoint(BASE_URL, "/summarize", "POST", {"text": long_text})
+
+    print("\nTests completed. Ensure your server is running and GEMINI_API_KEY is set for success cases.")
