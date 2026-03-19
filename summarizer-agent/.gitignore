@@ -1,0 +1,24 @@
+# Environment variables
+.env.example
+
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# macOS system files
+.DS_Store
+
+# IDEs/Editors
+.vscode/
+.idea/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
