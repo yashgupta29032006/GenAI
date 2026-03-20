@@ -1,6 +1,6 @@
 # Environment variables
 .env.example
-
+.env
 # Python caching
 __pycache__/
 *.py[cod]
@@ -22,3 +22,5 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+#https://summarizer-agent-64632696562.us-central1.run.app
