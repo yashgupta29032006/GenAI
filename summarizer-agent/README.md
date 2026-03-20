@@ -90,7 +90,7 @@ gcloud run deploy summarizer-agent \
   --port 8080
 ```
 
-**Final Service URL:** `https://summarizer-agent-[hash]-uc.a.run.app`
+**Final Service URL:** `https://summarizer-agent-64632696562.us-central1.run.app`
 
 ---
 *Developed with ❤️ using ADK and FastAPI.*
